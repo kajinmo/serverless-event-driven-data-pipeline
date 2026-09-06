@@ -1,0 +1,10 @@
+services:
+  floci:
+    image: floci/floci:latest
+    container_name: eda-floci
+    ports:
+      - "4566:4566"   # AWS APIs (DynamoDB, SQS, Lambda)
+      - "27017:27017" # Emulated DocumentDB/MongoDB port
+    environment:
+      - SERVICES=dynamodb,sqs,lambda,docdb
+      - DEFAULT_REGION=us-east-1
