@@ -4,7 +4,16 @@ services:
     container_name: eda-floci
     ports:
       - "4566:4566"   # AWS APIs (DynamoDB, SQS, Lambda)
-      - "27017:27017" # Emulated DocumentDB/MongoDB port
     environment:
-      - SERVICES=dynamodb,sqs,lambda,docdb
+      - SERVICES=dynamodb,sqs,lambda,stepfunctions
       - DEFAULT_REGION=us-east-1
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+  mongodb:
+    image: mongo:latest
+    container_name: eda-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=eda_database

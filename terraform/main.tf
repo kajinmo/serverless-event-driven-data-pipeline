@@ -8,9 +8,12 @@ provider "aws" {
   skip_metadata_api_check     = true
   skip_requesting_account_id  = true
 
-  # Redirect DynamoDB API to the Floci container
+  # Redirect APIs to the Floci container
   endpoints {
-    dynamodb = "http://localhost:4566"
+    dynamodb      = "http://localhost:4566"
+    stepfunctions = "http://localhost:4566"
+    lambda        = "http://localhost:4566"
+    iam           = "http://localhost:4566"
   }
 }
 

@@ -1,0 +1,54 @@
+{
+  "Comment": "Data Consolidation State Machine",
+  "StartAt": "FetchDataParallel",
+  "States": {
+    "FetchDataParallel": {
+      "Type": "Parallel",
+      "Next": "SimulateLongProcessing",
+      "Branches": [
+        {
+          "StartAt": "GetProfile",
+          "States": {
+            "GetProfile": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::dynamodb:getItem",
+              "Parameters": {
+                "TableName": "tb_user_profile",
+                "Key": {
+                  "user_id": {"S.$": "$.user_id"}
+                }
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "GetActivity",
+          "States": {
+            "GetActivity": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::dynamodb:getItem",
+              "Parameters": {
+                "TableName": "tb_user_activity",
+                "Key": {
+                  "user_id": {"S.$": "$.user_id"}
+                }
+              },
+              "End": true
+            }
+          }
+        }
+      ]
+    },
+    "SimulateLongProcessing": {
+      "Type": "Wait",
+      "Seconds": 1,
+      "Next": "ProcessDataLambda"
+    },
+    "ProcessDataLambda": {
+      "Type": "Task",
+      "Resource": "${lambda_arn}",
+      "End": true
+    }
+  }
+}
