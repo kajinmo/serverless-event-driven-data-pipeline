@@ -33,23 +33,23 @@ Use este documento para registrar suas decisões arquiteturais, bugs encontrados
 
 ## 📝 Épico 2: Orquestração Sênior (Step Functions no Floci)
 
-**Data de Início:** **_/_**/**_
-**Data de Conclusão:** _**/**_/_**
+**Data de Início:** 06/09/2026
+**Data de Conclusão:** 06/09/2026
 
 ### Tarefas Realizadas
 
-- [ ] Terraform: Criação da State Machine (Step Functions) provisionada no Floci.
-- [ ] Terraform: Lambda empacotado e provisionado no ambiente local.
-- [ ] Step Functions lendo nativamente o DynamoDB e repassando o payload consolidado.
-- [ ] Lambda recebendo o JSON do Step Functions e persistindo dados no DocumentDB emulado (Floci).
+- [x] Terraform: Criação da State Machine (Step Functions) provisionada no Floci.
+- [x] Terraform: Lambda empacotado e provisionado no ambiente local.
+- [x] Step Functions lendo nativamente o DynamoDB e repassando o payload consolidado.
+- [x] Lambda recebendo o JSON do Step Functions e persistindo dados no MongoDB (Floci).
 
 ### Decisões Técnicas e Trade-offs
 
-- ...
+- **Substituição do Serviço MongoDB:** Descobrimos que o serviço emulado `docdb` no Floci não expõe o MongoDB na porta 27017, então optamos por adicionar um contêiner oficial do MongoDB (`mongo:latest`) no `docker-compose.yml` para garantir que a Lambda tivesse um banco disponível para conexão.
 
 ### Bugs / Desafios Encontrados
 
-- ...
+- **Networking no Docker Bridge:** Enfrentamos um grande desafio com timeouts `ServerSelectionTimeoutError` do `pymongo` conectando a partir da Lambda. A Lambda roda em seu próprio contêiner gerado sob demanda pelo Floci. Resolvemos apontando a URI de conexão para `mongodb://eda-mongodb:27017/` já que a Lambda está na mesma rede Docker (`serverless-event-driven-data-pipeline_default`).
 
 ---
 
