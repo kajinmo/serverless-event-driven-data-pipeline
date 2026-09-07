@@ -21,14 +21,6 @@ resource "aws_iam_role" "lambda_exec_role" {
   })
 }
 
-data "aws_ssm_parameter" "mongo_user" {
-  name = "/eda/mongo_user"
-}
-
-data "aws_ssm_parameter" "mongo_password" {
-  name = "/eda/mongo_password"
-}
-
 resource "aws_lambda_function" "data_consolidation_lambda" {
   filename         = data.archive_file.lambda_zip.output_path
   function_name    = "DataConsolidationLambda"
@@ -38,10 +30,4 @@ resource "aws_lambda_function" "data_consolidation_lambda" {
   timeout          = 15
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
 
-  environment {
-    variables = {
-      MONGO_USER     = data.aws_ssm_parameter.mongo_user.value
-      MONGO_PASSWORD = data.aws_ssm_parameter.mongo_password.value
-    }
-  }
 }

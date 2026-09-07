@@ -2,15 +2,8 @@ import json
 import os
 import socket
 
-MONGO_USER = os.environ.get("MONGO_USER")
-MONGO_PASSWORD = os.environ.get("MONGO_PASSWORD")
-
-if MONGO_USER and MONGO_PASSWORD:
-    MONGO_URI = f"mongodb+srv://{MONGO_USER}:{MONGO_PASSWORD}@cluster0.n7ip9re.mongodb.net/?appName=Cluster0"
-else:
-    MONGO_URI = "mongodb://eda-mongodb:27017/"
-
-print(f"Connecting to MongoDB Atlas... (User: {MONGO_USER})")
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://eda-mongodb:27017/")
+print(f"Connecting to MongoDB at: {MONGO_URI}")
 print(f"Env vars: {dict(os.environ)}")
 
 from pymongo import MongoClient
