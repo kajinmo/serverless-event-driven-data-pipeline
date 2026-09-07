@@ -13,6 +13,34 @@ resource "aws_iam_role" "sfn_exec_role" {
       }
     ]
   })
+
+  inline_policy {
+    name = "sfn_policy"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action = [
+            "dynamodb:GetItem"
+          ]
+          Effect   = "Allow"
+          Resource = [
+            aws_dynamodb_table.tb_user_profile.arn,
+            aws_dynamodb_table.tb_user_activity.arn
+          ]
+        },
+        {
+          Action = [
+            "lambda:InvokeFunction"
+          ]
+          Effect   = "Allow"
+          Resource = [
+            aws_lambda_function.data_consolidation_lambda.arn
+          ]
+        }
+      ]
+    })
+  }
 }
 
 resource "aws_sfn_state_machine" "data_consolidation_sfn" {

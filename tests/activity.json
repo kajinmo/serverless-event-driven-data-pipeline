@@ -1,0 +1,5 @@
+{
+  "user_id": {"S": "test-aws-atlas-001"},
+  "last_login": {"S": "2026-09-07T15:00:00Z"},
+  "status": {"S": "ACTIVE"}
+}

@@ -55,14 +55,35 @@ Use este documento para registrar suas decisões arquiteturais, bugs encontrados
 
 ## 📝 Épico 3: Deploy Real e Banco Híbrido
 
-**Data de Início:** **_/_**/**_
-**Data de Conclusão:** _**/**_/_**
+**Data de Início:** 07/09/2026
+**Data de Conclusão:** 07/09/2026
 
 ### Tarefas Realizadas
 
-- [ ] Substituição da _connection string_ para o MongoDB Atlas.
-- [ ] Terraform: Alteração dos endpoints para deploy na AWS verdadeira.
+- [x] Backup do ambiente local `floci/`.
+- [x] Ajustar os arquivos Terraform (remover `endpoints` locais) e configurar o _AWS profile_.
+- [x] Configurar as credenciais do banco de dados na AWS (usando SSM Parameter Store).
+- [x] Atualizar a Lambda para resgatar e utilizar essas senhas dinamicamente (`MONGO_USER` e `MONGO_PASSWORD`).
+- [x] Fazer o deploy oficial da infraestrutura na AWS.
 
 ### Decisões Técnicas e Trade-offs
 
-- ...
+- Uso de `mongodb+srv` gerado dinamicamente para não deixar _connection strings_ expostas nem dependentes do arquivo `terraform.tfstate`.
+
+---
+
+## 📝 Épico 4: Integração E2E (End-to-End) e Validação de Dados
+
+**Data de Início:** 07/09/2026
+**Data de Conclusão:** _**/**_/_**
+
+### Tarefas Planejadas
+
+- [x] Injetar payload de teste diretamente na Step Functions (via AWS CLI).
+- [x] Validar a visualização dos dados consolidados no MongoDB Atlas.
+- [x] Garantir que o pipeline assíncrono ocorre com sucesso sem falhas de timeout.
+
+### Decisões Técnicas e Trade-offs
+
+- Para viabilizar o teste E2E real, injetamos mock data (`test-aws-atlas-001`) diretamente nas tabelas DynamoDB da AWS, permitindo que a _State Machine_ consumisse os dados nativamente através do `getItem`.
+- **Bug/Desafio Resolvido:** Durante a primeira execução da Step Functions, identificamos que a _Role IAM_ associada à máquina de estados não possuía permissões (`dynamodb:GetItem` e `lambda:InvokeFunction`). Corrigimos a infraestrutura no Terraform adicionando uma `inline_policy` e realizamos um novo _apply_.

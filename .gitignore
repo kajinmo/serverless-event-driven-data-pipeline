@@ -192,3 +192,11 @@ terraform.rc
 AGENTS.md
 .agent/AGENTS.md
 
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# Lambda
+*.zip
