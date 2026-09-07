@@ -62,13 +62,16 @@ To run the pipeline locally and emulate AWS infrastructure, we use a Docker envi
 ### Floci Setup & Deployment
 
 1. **Start the local emulators:**
+
    ```bash
    docker-compose up -d
    ```
-   *This starts the `eda-floci` container (mocking AWS DynamoDB, SQS, Lambda, Step Functions) and `eda-mongodb`.*
+
+   _This starts the `eda-floci` container (mocking AWS DynamoDB, SQS, Lambda, Step Functions) and `eda-mongodb`._
 
 2. **Deploy infrastructure locally:**
    Since we transitioned to the real AWS cloud, the local Terraform configuration was backed up to the `floci/` folder.
+
    ```bash
    cd floci
    terraform init
@@ -81,6 +84,7 @@ To run the pipeline locally and emulate AWS infrastructure, we use a Docker envi
 ### Cleanup
 
 1. **Destroy local resources:**
+
    ```bash
    cd floci
    terraform destroy
@@ -104,9 +108,15 @@ To run the pipeline locally and emulate AWS infrastructure, we use a Docker envi
    python tests/test_lambda.py
    ```
 
-### Deployment
+### Deployment to AWS
 
-1. **Initialize Terraform:**
+1. **Upload MongoDB Credentials to SSM:**
+   Create a `.env` file from `.env.example` with your `MONGO_USER` and `MONGO_PASSWORD`, then run the script to securely store them in AWS Parameter Store:
+   ```bash
+   python scripts/upload_ssm.py
+   ```
+
+2. **Initialize Terraform:**
 
    ```bash
    cd terraform
@@ -148,10 +158,3 @@ To run the pipeline locally and emulate AWS infrastructure, we use a Docker envi
   - `lambda_profile/`: User profile processing
 - `scripts/`: Utility scripts for testing and automation
 - `tests/`: Test scripts
-
-## Security Best Practices
-
-- Never hardcode credentials in code or Terraform files
-- Use environment variables for secrets
-- Use AWS SSM Parameter Store or Secrets Manager for production
-- Always use the `portfolio-sandbox` AWS profile for local development
