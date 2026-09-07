@@ -50,34 +50,45 @@ An end-to-end serverless data pipeline that ingests user activity, enriches it w
 +--------+-------+
 ```
 
-## Local Development Environment
+## Local Development Environment (Floci)
 
-To run the pipeline locally without AWS infrastructure, use the provided Docker environment:
+To run the pipeline locally and emulate AWS infrastructure, we use a Docker environment with **Floci** (a local cloud emulator) and a local MongoDB instance.
 
 ### Prerequisites
 
 - Docker and Docker Compose installed
-- AWS CLI configured with a profile (e.g., `portfolio-sandbox`)
 - Terraform installed
 
-### Setup
+### Floci Setup & Deployment
 
-1. **Create a `.env` file** in the project root (copy from `.env.example`):
-
-   ```bash
-   cp .env.example .env
-   ```
-
-2. **Update `.env`** with your MongoDB credentials:
-
-   ```bash
-   MONGO_USER=admin
-   MONGO_PASSWORD=secret
-   ```
-
-3. **Start the environment:**
+1. **Start the local emulators:**
    ```bash
    docker-compose up -d
+   ```
+   *This starts the `eda-floci` container (mocking AWS DynamoDB, SQS, Lambda, Step Functions) and `eda-mongodb`.*
+
+2. **Deploy infrastructure locally:**
+   Since we transitioned to the real AWS cloud, the local Terraform configuration was backed up to the `floci/` folder.
+   ```bash
+   cd floci
+   terraform init
+   terraform apply
+   ```
+
+3. **Testing locally:**
+   You can run the python seed scripts or tests pointing to `http://localhost:4566`.
+
+### Cleanup
+
+1. **Destroy local resources:**
+   ```bash
+   cd floci
+   terraform destroy
+   ```
+
+2. **Stop the Docker environment:**
+   ```bash
+   docker-compose down
    ```
 
 ### Testing
