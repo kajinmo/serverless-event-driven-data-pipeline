@@ -61,15 +61,10 @@ To run the pipeline locally and emulate AWS infrastructure, we use a Docker envi
 
 ### Testing
 
-1. **Generate test data:**
+1. **Generate and seed test data to DynamoDB:**
 
    ```bash
-   python scripts/generate_test_data.py
-   ```
-
-2. **Run the Lambda function:**
-   ```bash
-   python tests/test_lambda.py
+   python scripts/seed.py
    ```
 
 ### Deployment to AWS
@@ -87,19 +82,19 @@ To run the pipeline locally and emulate AWS infrastructure, we use a Docker envi
    terraform init
    ```
 
-2. **Review the plan:**
+3. **Review the plan:**
 
    ```bash
    terraform plan
    ```
 
-3. **Apply the changes:**
+4. **Apply the changes:**
    ```bash
    terraform apply -auto-approve
    ```
 
-4. **Test the Pipeline Execution:**
-   Once deployed, you can trigger the Step Functions orchestrator manually to test the flow and verify the Status Table.
+5. **Test the Pipeline Execution:**
+   Once deployed, you can trigger the Step Functions orchestrator manually to test the flow and verify the Status Table:
    
    ```bash
    # From the root directory
@@ -127,11 +122,15 @@ To run the pipeline locally and emulate AWS infrastructure, we use a Docker envi
 
 ## Code Structure
 
-- `floci/`: Local development environment code (temporary)
-- `terraform/`: Terraform infrastructure definitions
-- `src/`: Source code for Lambda functions
-  - `lambda_function/`: Main orchestrator Lambda
-  - `lambda_activity/`: User activity processing
-  - `lambda_profile/`: User profile processing
-- `scripts/`: Utility scripts for testing and automation
-- `tests/`: Test scripts
+- `floci/`: Local development environment Terraform configuration and mock environment
+- `terraform/`: Terraform IaC definitions for AWS resources (DynamoDB tables, Step Functions state machine, IAM roles, Lambda)
+- `src/`:
+  - `lambda_function/`: The single Data Consolidation Lambda function (`handler.py`) and bundled runtime dependencies (`pymongo`, `dnspython`)
+  - `infra/`: DynamoDB resource configuration and table bindings for local scripts
+  - `models/`: Pydantic data models and schema validation contracts (`contracts.py`)
+  - `services/`: Synthetic data generator (`data_generator.py`) and DynamoDB data loader (`data_loader.py`)
+- `scripts/`:
+  - `seed.py`: Utility to generate and seed synthetic profile and activity records
+  - `upload_ssm.py`: Securely stores MongoDB credentials in AWS Systems Manager Parameter Store
+- `tests/`: Sample event payloads and mock JSON files for testing (`sfn_payload.json`, `profile.json`, `activity.json`)
+
