@@ -4,51 +4,15 @@ An end-to-end serverless data pipeline that ingests user activity, enriches it w
 
 ## Architecture Overview
 
-```
-+----------------+
-| Event Stream   |
-| (API Gateway)  |
-+--------+-------+
-         |
-         v
-+--------+-------+
-| S3 Bucket      |
-| (Raw Events)   |
-+--------+-------+
-         |
-         v
-+--------+-------+
-| SQS Queue      |
-| (Trigger)      |
-+--------+-------+
-         |
-         v
-+--------+-------+
-| Lambda         |
-| (Orchestrator) |
-+--------+-------+
-         |
-         v
-+--------+-------+--------+--------+
-|   Parallel State       |
-+--------+-------+--------+--------+
-         |
-         v
-+--------+-------+   +--------+-------+
-|  Profile Lambda |   | Activity Lambda|
-+--------+-------+   +--------+-------+
-         |
-         v
-+--------+-------+
-|  Join State    |
-+--------+-------+
-         |
-         v
-+--------+-------+
-| MongoDB Atlas  |
-| (Consolidated) |
-+--------+-------+
-```
+The architecture implements a Serverless Data Consolidation Pipeline using **AWS Step Functions** with Direct Service Integration, avoiding unnecessary Lambda executions.
+
+![Architecture Diagram](docs/event-driven_data_consolidation.png)
+
+**Flow:**
+1. A trigger event (e.g., from Floci emulator or an external service) starts the **AWS Step Functions** orchestrator.
+2. Step Functions performs a parallel **Direct Integration** (`getItem`) to fetch user data from two DynamoDB tables (`tb_user_profile` and `tb_user_activity`).
+3. The collected data is passed to a single **AWS Lambda** (Data Consolidation).
+4. The Lambda consolidates the payload, writes the result to **MongoDB Atlas**, and updates the execution status in a third DynamoDB table (`tb_execution_status`).
 
 ## Local Development Environment (Floci)
 
@@ -131,8 +95,21 @@ To run the pipeline locally and emulate AWS infrastructure, we use a Docker envi
 
 3. **Apply the changes:**
    ```bash
-   terraform apply
+   terraform apply -auto-approve
    ```
+
+4. **Test the Pipeline Execution:**
+   Once deployed, you can trigger the Step Functions orchestrator manually to test the flow and verify the Status Table.
+   
+   ```bash
+   # From the root directory
+   aws stepfunctions start-execution \
+       --state-machine-arn arn:aws:states:us-east-1:672350744151:stateMachine:DataConsolidationStateMachine \
+       --input file://tests/sfn_payload.json \
+       --profile portfolio-sandbox
+   ```
+   
+   Check the `tb_execution_status` DynamoDB table afterward to see the `COMPLETED` or `FAILED` state!
 
 ### Cleanup
 
