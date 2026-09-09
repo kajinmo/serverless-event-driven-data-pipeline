@@ -21,6 +21,25 @@ resource "aws_iam_role" "lambda_exec_role" {
   })
 }
 
+resource "aws_iam_role_policy" "lambda_dynamo_policy" {
+  name = "lambda_dynamo_policy"
+  role = aws_iam_role.lambda_exec_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem"
+        ]
+        Effect   = "Allow"
+        Resource = aws_dynamodb_table.tb_execution_status.arn
+      }
+    ]
+  })
+}
+
 data "aws_ssm_parameter" "mongo_user" {
   name = "/eda/mongo_user"
 }
@@ -40,8 +59,9 @@ resource "aws_lambda_function" "data_consolidation_lambda" {
 
   environment {
     variables = {
-      MONGO_USER     = data.aws_ssm_parameter.mongo_user.value
-      MONGO_PASSWORD = data.aws_ssm_parameter.mongo_password.value
+      MONGO_USER        = data.aws_ssm_parameter.mongo_user.value
+      MONGO_PASSWORD    = data.aws_ssm_parameter.mongo_password.value
+      STATUS_TABLE_NAME = aws_dynamodb_table.tb_execution_status.name
     }
   }
 }
